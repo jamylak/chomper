@@ -6,7 +6,7 @@ cargo build
 ```
 
 ```sh
-cargo install
+cargo install --path .
 ```
 
 ```sh
