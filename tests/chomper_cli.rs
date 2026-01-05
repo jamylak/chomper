@@ -58,3 +58,12 @@ fn empties_file_with_only_newlines() {
     fs::remove_file(&path).unwrap();
     assert_eq!(data, b"");
 }
+
+#[test]
+fn empty_file() {
+    let path = write_temp("only", b"");
+    run_chomper(&path);
+    let data = fs::read(&path).unwrap();
+    fs::remove_file(&path).unwrap();
+    assert_eq!(data, b"");
+}
