@@ -17,7 +17,7 @@ fn trim_trailing_newlines(path: &str) -> std::io::Result<u64> {
 
     // Walk backwards to find the last non-newline byte.
     let mut end_pos = len;
-    let mut buffer = vec![0u8; BLOCK_SIZE];
+    let mut buffer = [0u8; BLOCK_SIZE];
 
     while end_pos > 0 {
         let chunk_size = std::cmp::min(BLOCK_SIZE as u64, end_pos) as usize;
