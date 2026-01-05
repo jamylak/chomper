@@ -3,15 +3,19 @@ use std::fs::OpenOptions;
 use std::io::{Read, Seek, SeekFrom};
 use std::process;
 
+// Read in fixed-size chunks when scanning from the end of the file.
 const BLOCK_SIZE: usize = 8 * 1024;
 
+// Trim trailing newline and carriage return bytes in-place.
 fn trim_trailing_newlines(path: &str) -> std::io::Result<u64> {
+    // Open for read/write so we can inspect and then truncate if needed.
     let mut file = OpenOptions::new().read(true).write(true).open(path)?;
     let len = file.metadata()?.len();
     if len == 0 {
         return Ok(0);
     }
 
+    // Walk backwards to find the last non-newline byte.
     let mut end_pos = len;
     let mut buffer = vec![0u8; BLOCK_SIZE];
 
@@ -22,6 +26,7 @@ fn trim_trailing_newlines(path: &str) -> std::io::Result<u64> {
         let slice = &mut buffer[..chunk_size];
         file.read_exact(slice)?;
 
+        // If this chunk contains content, truncate to just after the last byte.
         if let Some(idx) = slice.iter().rposition(|&b| b != b'\n' && b != b'\r') {
             let new_len = start_pos + idx as u64 + 1;
             if new_len != len {
@@ -30,14 +35,17 @@ fn trim_trailing_newlines(path: &str) -> std::io::Result<u64> {
             return Ok(len - new_len);
         }
 
+        // Otherwise keep scanning earlier chunks.
         end_pos = start_pos;
     }
 
+    // File was entirely newlines; truncate to empty.
     file.set_len(0)?;
     Ok(len)
 }
 
 fn main() {
+    // Parse a single file path argument.
     let mut args = env::args().skip(1);
     let path = match args.next() {
         Some(p) => p,
@@ -52,6 +60,7 @@ fn main() {
         process::exit(2);
     }
 
+    // Perform the in-place trim and report failures.
     if let Err(err) = trim_trailing_newlines(&path) {
         eprintln!("chomper: {err}");
         process::exit(1);
@@ -64,6 +73,7 @@ mod tests {
     use std::fs;
     use std::io::Write;
 
+    // Write a temporary file with the provided bytes.
     fn write_temp(data: &[u8]) -> std::path::PathBuf {
         let mut path = std::env::temp_dir();
         let nanos = std::time::SystemTime::now()
