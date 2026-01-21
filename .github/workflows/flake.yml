@@ -1,0 +1,17 @@
+name: Flake
+
+on:
+  pull_request:
+    paths:
+      - flake.nix
+      - flake.lock
+      - .github/workflows/flake.yml
+
+jobs:
+  flake-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v12
+      - name: Validate flake
+        run: nix --extra-experimental-features "nix-command flakes" flake check
