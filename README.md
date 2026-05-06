@@ -10,6 +10,12 @@ With Homebrew:
 brew install jamylak/tap/chomper
 ```
 
+With Nix:
+
+```bash
+nix profile install github:jamylak/chomper
+```
+
 From source with Cargo:
 
 ```bash
