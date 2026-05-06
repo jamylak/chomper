@@ -4,6 +4,14 @@ Trim trailing newline and carriage return bytes from a file in-place.
 
 ## Install
 
+With Homebrew:
+
+```bash
+brew install jamylak/tap/chomper
+```
+
+From source with Cargo:
+
 ```bash
 cargo install --path .
 ```
